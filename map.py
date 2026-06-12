@@ -6,9 +6,16 @@ import pygame
 from obstacle import Obstacle, PASSABLE, COLORS
 from constants import ROWS, COLS, TILE_SIZE   
 class Map:
-    def __init__(self, level=3):
+    def __init__(self, level=2):
         self.grid = [[Obstacle.EMPTY] * COLS for _ in range(ROWS)]
         self.load_level(f"levels/level{level}.txt")
+        self.images = {
+            Obstacle.BRICK: pygame.image.load("assets/brick.png"),
+            Obstacle.STEEL: pygame.image.load("assets/steel.png"),
+             Obstacle.WATER: pygame.image.load("assets/water.png"),
+            Obstacle.FOREST: pygame.image.load("assets/forest.png"),
+            Obstacle.BASE: pygame.image.load("assets/base.png"),
+}
     
     def load_level(self, filename):
         
