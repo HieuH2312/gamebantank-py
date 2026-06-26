@@ -1,6 +1,7 @@
 # tank.py
 import os
 import pygame
+import random
 from constants import TILE_SIZE, TANK_SPEED, COLS, ROWS
 from obstacle import Forest
 
@@ -236,7 +237,7 @@ class PlayerTank(Tank):
 
 
 class EnemyTank(Tank):
-    """Tank địch — AI sẽ được thêm vào sau."""
+    """Tank địch với AI di chuyển ngẫu nhiên và bắn đạn."""
 
     def __init__(self, col, row, image_path="Xe tăng địch 1.png"):
         super().__init__(
@@ -246,5 +247,34 @@ class EnemyTank(Tank):
             image_path=image_path,
         )
 
-    def update(self, game_map):
-        pass  # TODO: thêm AI di chuyển
+        # Đếm frame để đổi hướng
+        self.frame_count = 0
+        self.change_after = random.randint(30, 60)
+
+        # Đếm frame để bắn đạn
+        self.shoot_timer = 0
+        self.shoot_delay = random.randint(60, 120)  # Bắn mỗi 1-2 giây
+
+    def update(self, game_map, other_enemies=None):
+        """Cập nhật AI: đổi hướng ngẫu nhiên, di chuyển, và bắn đạn."""
+        self.frame_count += 1
+
+        # Đổi hướng ngẫu nhiên sau một khoảng thời gian
+        if self.frame_count >= self.change_after:
+            self.direction = random.choice(["UP", "DOWN", "LEFT", "RIGHT"])
+            self.frame_count = 0
+            self.change_after = random.randint(30, 60)
+
+        # Di chuyển — dùng move() từ Tank, có check tường và tank khác
+        self.move(self.direction, game_map, other_tanks=other_enemies)
+
+        # Đếm thời gian bắn
+        self.shoot_timer += 1
+
+    def can_shoot(self):
+        """Trả về True nếu đến lượt bắn, rồi reset timer."""
+        if self.shoot_timer >= self.shoot_delay:
+            self.shoot_timer = 0
+            self.shoot_delay = random.randint(60, 120)
+            return True
+        return False

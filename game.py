@@ -11,8 +11,7 @@ from constants import (
     STATE_GAMEOVER,
 )
 from map import Map
-from tank import PlayerTank
-from enemy import Enemy
+from tank import PlayerTank, EnemyTank
 from bullet import Bullet
 from collision import handle_bullet_collisions, check_base_destroyed
 
@@ -86,7 +85,9 @@ class Game:
         image_path = os.path.join(base_dir, "assets", "menu.png")
         try:
             image = pygame.image.load(image_path).convert_alpha()
-            self.start_screen_image = pygame.transform.scale(image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+            self.start_screen_image = pygame.transform.scale(
+                image, (SCREEN_WIDTH, SCREEN_HEIGHT)
+            )
         except (pygame.error, FileNotFoundError):
             self.start_screen_image = None
 
@@ -118,7 +119,9 @@ class Game:
 
             elif self.state == STATE_GAMEOVER:
                 if event.key == pygame.K_r:
-                    self.start_level(self.playing_level, self.current_wave)  # Chơi lại đúng sóng vừa thua
+                    self.start_level(
+                        self.playing_level, self.current_wave
+                    )  # Chơi lại đúng sóng vừa thua
                 elif event.key in (pygame.K_q, pygame.K_ESCAPE):
                     self.running = False
 
@@ -191,6 +194,7 @@ class Game:
             self.player.y = 22 * TILE_SIZE
             self.player.rect.topleft = (self.player.x, self.player.y)
             self.enemies = self._create_enemies_for_level(self.current_wave)
+
     def draw(self):
         if self.state == STATE_START:
             self._draw_start_screen()
@@ -208,7 +212,8 @@ class Game:
             self.screen.fill((10, 10, 10))
             title = self.font_title.render("GAME BAN TANK", True, (255, 220, 0))
             self.screen.blit(
-                title, title.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40))
+                title,
+                title.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40)),
             )
 
         self.blink_timer += 1
@@ -253,7 +258,6 @@ class Game:
         self.screen.blit(
             opt2, opt2.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50))
         )
-   
 
     def _create_enemies_for_level(self, wave: int):
         spawn_positions = [
@@ -274,5 +278,5 @@ class Game:
 
         enemies = []
         for col, row, image_path in spawn_positions[:count]:
-            enemies.append(Enemy(col=col, row=row, image_path=image_path))
+            enemies.append(EnemyTank(col=col, row=row, image_path=image_path))
         return enemies
