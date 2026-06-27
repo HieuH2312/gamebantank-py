@@ -3,6 +3,7 @@ import os
 import pygame
 import random
 from constants import TILE_SIZE, TANK_SPEED, COLS, ROWS
+from collision import try_move_tank
 from obstacle import Forest
 
 
@@ -45,40 +46,7 @@ class Tank(pygame.sprite.Sprite):
 
     def move(self, direction, game_map, other_tanks=None):
         """Di chuyển tank nếu không bị chặn bởi tường, biên màn hình hoặc tank khác."""
-        self.direction = direction
-
-        new_x = self.x
-        new_y = self.y
-
-        if direction == "UP":
-            new_y -= self.speed
-        elif direction == "DOWN":
-            new_y += self.speed
-        elif direction == "LEFT":
-            new_x -= self.speed
-        elif direction == "RIGHT":
-            new_x += self.speed
-
-        # Giới hạn trong màn hình
-        new_x = max(0, min(new_x, (COLS - 1) * TILE_SIZE))
-        new_y = max(0, min(new_y, (ROWS - 1) * TILE_SIZE))
-
-        if not self._is_passable(new_x, new_y, game_map):
-            return
-
-        if other_tanks:
-            target_rect = pygame.Rect(new_x, new_y, self.size, self.size)
-            for other in other_tanks:
-                if other is self:
-                    continue
-                if target_rect.colliderect(other.rect):
-                    if not other._try_push(direction, game_map, other_tanks):
-                        return
-                    break
-
-        self.x = new_x
-        self.y = new_y
-        self.rect.topleft = (self.x, self.y)
+        return try_move_tank(self, direction, game_map, other_tanks)
 
     def _is_passable(self, x, y, game_map):
         """

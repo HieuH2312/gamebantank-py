@@ -13,7 +13,11 @@ from constants import (
 from map import Map
 from tank import PlayerTank, EnemyTank
 from bullet import Bullet
-from collision import handle_bullet_collisions, check_base_destroyed
+from collision import (
+    handle_bullet_collisions,
+    check_base_destroyed,
+    resolve_tank_tank_collision,
+)
 
 
 class Game:
@@ -168,22 +172,8 @@ class Game:
             if tank in self.enemies:
                 self.enemies.remove(tank)
 
-        # 9. Va chạm tank-tank: đẩy player ra nếu đè lên enemy (giữ nguyên logic cũ)
-        player_rect = pygame.Rect(
-            self.player.x, self.player.y, self.player.size, self.player.size
-        )
-        for enemy in self.enemies:
-            enemy_rect = pygame.Rect(enemy.x, enemy.y, enemy.size, enemy.size)
-            if player_rect.colliderect(enemy_rect):
-                if self.player.direction == "UP":
-                    self.player.y += self.player.speed
-                elif self.player.direction == "DOWN":
-                    self.player.y -= self.player.speed
-                elif self.player.direction == "LEFT":
-                    self.player.x += self.player.speed
-                elif self.player.direction == "RIGHT":
-                    self.player.x -= self.player.speed
-                self.player.rect.topleft = (self.player.x, self.player.y)
+        # 9. Va chạm tank-tank: đẩy player ra nếu đè lên enemy
+        resolve_tank_tank_collision(self.player, self.enemies)
 
         # 10. Hết enemy -> qua map level tiếp theo và tăng sóng
         if len(self.enemies) == 0:
